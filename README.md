@@ -11,6 +11,8 @@ Brighte would like to provide a system to accept expressions of interest for a n
 ### Setup
 
 ```bash
+nvm install v22.17.1
+nvm use v22.17.1
 git clone git@github.com:imahenasyon/brigthe-eats-sample.git
 cd brigthe-eats-sample/
 yarn install
