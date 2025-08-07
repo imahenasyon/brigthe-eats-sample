@@ -110,7 +110,7 @@ mutation {
         email: "chloe.rivera@example.org"
         mobile: "09051234533"
         postcode: "6000"
-        services: ["delivery", "pickup", "payment"]
+        services: ["delivery", "pick-up", "payment"]
       ) {
         id
         name
