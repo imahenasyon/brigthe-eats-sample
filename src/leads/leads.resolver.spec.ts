@@ -37,7 +37,7 @@ describe('LeadsResolver', () => {
         email: 'jane@example.com',
         mobile: '0987654321',
         postcode: '54321',
-        services: ['Gardening'],
+        services: ['delivery'],
       };
       const expectedLead = { id: 1, ...leadData };
 
