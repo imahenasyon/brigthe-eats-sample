@@ -17,6 +17,8 @@ describe('LeadsResolver', () => {
             create: jest.fn(),
             findAll: jest.fn(),
             findOne: jest.fn(),
+            update: jest.fn(),
+            delete: jest.fn(),
           },
         },
       ],
@@ -86,6 +88,86 @@ describe('LeadsResolver', () => {
 
       const result = await resolver.lead(999);
       expect(result).toBeNull();
+    });
+  });
+
+  describe('leadEdit', () => {
+    it('should update an existing lead', async () => {
+      const id = 1;
+      const leadData = {
+        name: 'Updated Name',
+        email: 'updated@example.com',
+        mobile: '111222333',
+        postcode: '67890',
+        services: ['payment'],
+      };
+      const existingLead = {
+        id,
+        name: 'Old Name',
+        email: 'old@example.com',
+        mobile: '1234567890',
+        postcode: '12345',
+        services: ['delivery'],
+      };
+      const updatedLead = { ...existingLead, ...leadData };
+
+      jest.spyOn(service, 'findOne').mockResolvedValue(existingLead as any);
+      jest.spyOn(service, 'update').mockResolvedValue(updatedLead as any);
+
+      const result = await resolver.leadEdit(
+        id,
+        leadData.name,
+        leadData.email,
+        leadData.mobile,
+        leadData.postcode,
+        leadData.services,
+      );
+
+      expect(service.findOne).toHaveBeenCalledWith(id);
+      expect(service.update).toHaveBeenCalledWith(id, {
+        name: leadData.name,
+        email: leadData.email,
+        mobile: leadData.mobile,
+        postcode: leadData.postcode,
+        services: leadData.services,
+      });
+      expect(result).toEqual(updatedLead);
+    });
+
+    it('should throw an error if lead to update is not found', async () => {
+      const id = 999;
+      const leadData = {
+        name: 'Updated Name',
+        email: 'updated@example.com',
+        mobile: '111222333',
+        postcode: '67890',
+        services: ['delivery'],
+      };
+
+      jest.spyOn(service, 'findOne').mockResolvedValue(null);
+
+      await expect(
+        resolver.leadEdit(
+          id,
+          leadData.name,
+          leadData.email,
+          leadData.mobile,
+          leadData.postcode,
+          leadData.services,
+        ),
+      ).rejects.toThrow('Lead not found');
+    });
+  });
+
+  describe('leadDelete', () => {
+    it('should delete a lead and return true', async () => {
+      const id = 1;
+      jest.spyOn(service, 'delete').mockResolvedValue(undefined);
+
+      const result = await resolver.leadDelete(id);
+
+      expect(service.delete).toHaveBeenCalledWith(id);
+      expect(result).toBe(true);
     });
   });
 });

@@ -22,4 +22,19 @@ export class LeadsService {
   async findOne(id: number): Promise<Lead | null> {
     return this.leadsRepository.findOne({ where: { id } });
   }
+
+  async update(id: number, leadData: Partial<Lead>): Promise<Lead> {
+    const lead = await this.findOne(id);
+    if (!lead) throw new Error('Lead not found');
+    Object.assign(lead, leadData);
+    return this.leadsRepository.save(lead);
+  }
+
+  async delete(id: number): Promise<void> {
+    const result = await this.leadsRepository.delete(id);
+    if (result.affected === 0) {
+      throw new Error('No lead found with that ID');
+    }
+  }
+  
 }

@@ -19,6 +19,7 @@ describe('LeadsService', () => {
             save: jest.fn(),
             find: jest.fn(),
             findOne: jest.fn(),
+            delete: jest.fn(),
           },
         },
       ],
@@ -83,6 +84,47 @@ describe('LeadsService', () => {
 
       const result = await service.findOne(999);
       expect(result).toBeNull();
+    });
+  });
+
+  describe('update', () => {
+    it('should update an existing lead', async () => {
+      const id = 1;
+      const leadData = {
+        name: 'Updated Name',
+        email: 'updated@example.com',
+      };
+
+      const existingLead = { id, name: 'Old Name' } as Lead;
+      jest.spyOn(service, 'findOne').mockResolvedValue(existingLead);
+      jest.spyOn(repository, 'save').mockResolvedValue({ ...existingLead, ...leadData } as Lead);
+
+      const result = await service.update(id, leadData);
+      expect(service.findOne).toHaveBeenCalledWith(id);
+      expect(repository.save).toHaveBeenCalledWith({ ...existingLead, ...leadData });
+      expect(result).toEqual({ ...existingLead, ...leadData });
+    });
+
+    it('should throw error when lead not found', async () => {
+      jest.spyOn(service as any, 'findOne').mockResolvedValue(null);
+
+      await expect(service.update(999, { name: 'New Name' })).rejects.toThrow('Lead not found');
+    });
+  });
+
+  describe('delete', () => {
+    it('should delete an existing lead', async () => {
+      const id = 1;
+      jest.spyOn(repository, 'delete').mockResolvedValue({ affected: 1 } as any);
+
+      await service.delete(id);
+      expect(repository.delete).toHaveBeenCalledWith(id);
+    });
+
+    it('should throw error when lead not found', async () => {
+      jest.spyOn(repository, 'delete').mockResolvedValue({ affected: 0 } as any);
+
+      await expect(service.delete(999)).rejects.toThrow('No lead found with that ID');
     });
   });
 });

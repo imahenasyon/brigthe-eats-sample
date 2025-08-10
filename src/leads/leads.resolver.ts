@@ -23,6 +23,27 @@ export class LeadsResolver {
     });
   }
 
+  @Mutation(() => Lead)
+  async leadEdit(
+    @Args('id') id: number,
+    @Args('name') name: string,
+    @Args('email') email: string,
+    @Args('mobile') mobile: string,
+    @Args('postcode') postcode: string,
+    @Args('services', { type: () => [String] }) services: string[],
+  ): Promise<Lead> {
+    const lead = await this.leadsService.findOne(id);
+    if (!lead) throw new Error('Lead not found');
+    Object.assign(lead, { name, email, mobile, postcode, services });
+    return this.leadsService.update(id, { name, email, mobile, postcode, services });
+  }
+
+  @Mutation(() => Boolean)
+  async leadDelete(@Args('id') id: number): Promise<boolean> {
+    await this.leadsService.delete(id);
+    return true;
+  }
+
   @Query(() => [Lead])
   async leads(): Promise<Lead[]> {
     return this.leadsService.findAll();
